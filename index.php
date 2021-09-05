@@ -48,7 +48,7 @@ if( !empty($_POST['btn_submit']) ){
             "'".$clean['view_name']."','".$clean['message']."','".$current_date."'\n";
 
             //書き込み
-            fwrite($file_handle, $date);
+            fwrite($file_handle, $data);
 
             //ファイルを閉じる
             fclose($file_handle);
@@ -65,7 +65,7 @@ if( !empty($_POST['btn_submit']) ){
 
             $message = array(
                 'view_name' => $split_data[1],
-                'message' => $spilit_data[3],
+                'message' => $split_data[3],
                 'post_date' => $split_data[5]
             );
             array_unshift($message_array,$message);
