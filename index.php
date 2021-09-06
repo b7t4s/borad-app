@@ -17,27 +17,47 @@ $message_array = array();
 $success_message = null;
 $error_message = array();
 $clean = array();
+$pdo = null;
+$stmt = null;
+$res = null;
+$option = null;
+
+
+//データベースに接続
+try{
+
+    //セキュリティ対策の一環としてオプションの指定を追記する
+    $option = array(
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::MYSQL_ATTR_MULTI_STATEMENTS => false
+    );
+    //データベースに接続
+    $pdo = new PDO('mysql:charset=utf8;dbname=board;host=localhost','root','root',$option);
+}catch(PDOException $e) {
+
+    //接続エラーのときエラー内容を取得する
+    $error_message[] = $e->getMessage();
+}
 
 if( !empty($_POST['btn_submit']) ){
 
+    //空白除去
+    $view_name = preg_replace('/\A[\p{C}\p{Z}]++|[\p{C}\p{Z}]++\z/u','',$_POST['view_name']);
+    $message = preg_replace('/\A[\p{C}\p{Z}]++|[\p{C}\p{Z}]++\z/u','',$_POST['message']);
+
     //表示名の入力チェック
-    if( empty($_POST['view_name'])) {
+    if( empty($view_name)) {
         $error_message[] = "表示名を入力してください。";
-    }else{
-        $clean['view_name'] = htmlspecialchars($_POST['view_name'],ENT_QUOTES,'UTF-8');
-        $clean['view_name'] = preg_replace('/\\r\\n|\\n|\\r/','',$clean['view_name']);
     }
 
     //メッセージの入力チェック
-    if( empty($_POST['message'])) {
+    if( empty($message)) {
         $error_message[] = "ひと言メッセージを入力してください。";
-    }else{
-        $clean['message'] = htmlspecialchars($_POST['message'],ENT_QUOTES,'UTF-8');
-        $clean['message'] = preg_replace('/\\r\\n|\\n|\\r/','<br>',$clean['message']);
     }
-
+   
     if( empty($error_message)) {
 
+        /* コメントアウトする
         if($file_handle = fopen(FILENAME,"a") ) {
 
             //書き込み日時を取得
@@ -55,8 +75,50 @@ if( !empty($_POST['btn_submit']) ){
 
             $success_message = "メッセージを書き込みました。";
         }
+        　ここまでコメントアウト */
+
+        //書き込み日時を取得
+        $current_date = date("Y-m-d H:i:s");
+
+        //トランザクション開始
+        $pdo->beginTransaction();
+
+        try {
+
+        //SQL作成
+        $stmt = $pdo->prepare("INSERT INTO message(view_name,message,post_date)
+        VALUES( :view_name,:message,:current_date)");
+
+        //値をセット
+        $stmt->bindParam(':view_name',$view_name,PDO::PARAM_STR);
+        $stmt->bindParam(':message',$message,PDO::PARAM_STR);
+        $stmt->bindParam(':current_date',$current_date,PDO::PARAM_STR);
+
+        //SQLクエリの実行
+        $res = $stmt->execute();
+
+        //コミット
+        $res = $pdo->commit();
+
+        }catch(Exception $e){
+
+            //エラーが発生した時はロールバック
+            $pdo->rollBack();
+        }
+        if($res) {
+            $success_message = 'メッセージを書き込みました。';
+        }else{
+            $error_message[] = "書き込みに失敗しました。";
+        }
+
+        //プリペアドステートメントを削除
+        $stmt = null;
     }
 }
+
+    //データベースの接続を閉じる
+    $pdo = null;
+
 
     if($file_handle = fopen(FILENAME,'r')) {
         while($data = fgets($file_handle) ) {
