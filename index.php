@@ -32,7 +32,7 @@ try{
         PDO::MYSQL_ATTR_MULTI_STATEMENTS => false
     );
     //データベースに接続
-    $pdo = new PDO('mysql:charset=utf8;dbname=board;host=localhost','root','root',$option);
+    $pdo = new PDO('mysql:charset=utf8;dbname=board;host=localhost','board_user','BOARD0219',$option);
 }catch(PDOException $e) {
 
     //接続エラーのときエラー内容を取得する
@@ -86,8 +86,7 @@ if( !empty($_POST['btn_submit']) ){
         try {
 
         //SQL作成
-        $stmt = $pdo->prepare("INSERT INTO message(view_name,message,post_date)
-        VALUES( :view_name,:message,:current_date)");
+        $stmt = $pdo->prepare("INSERT INTO message(view_name,message,post_date)VALUES( :view_name,:message,:current_date)");
 
         //値をセット
         $stmt->bindParam(':view_name',$view_name,PDO::PARAM_STR);
@@ -404,8 +403,8 @@ if( !empty($_POST['btn_submit']) ){
             <?php foreach($message_array as $value): ?>
             <article>
                 <div class="info">
-                    <h2><?php echo $valus['view_name']; ?></h2>
-                    <time><?php echo date('Y年m月d日　H:i',strtotime($value['post_date'])); ?></time>
+                    <h2><?php echo $value['view_name']; ?></h2>
+                    <time><?php echo date('Y年m月d日 H:i',strtotime($value['post_date'])); ?></time>
                 </div>
                 <p><?php echo $value['message']; ?></p>
             </article>
