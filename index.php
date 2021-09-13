@@ -89,13 +89,16 @@ if( !empty($_POST['btn_submit']) ){
             $pdo->rollBack();
         }
         if($res) {
-            $success_message = 'メッセージを書き込みました。';
+            $_SESSION['success_message'] = 'メッセージを書き込みました。';
         }else{
             $error_message[] = "書き込みに失敗しました。";
         }
 
         //プリペアドステートメントを削除
         $stmt = null;
+
+        header('Location:./');
+        exit;
     }
 }
 
@@ -348,8 +351,9 @@ if( !empty($_POST['btn_submit']) ){
         </head>
         <body>
             <h1>ひと言掲示板</h1>
-            <?php if(!empty($success_message) ): ?>
-                <p class="success_message"><?php echo $success_message; ?></p>
+            <?php if(empty($_POST['btn_submit'])&& !empty($_SESSION['success_message'])): ?>
+                <p class="success_message"><?php echo htmlspecialchars($_SESSION['$success_message'],ENT_QUOTES,'UTF-8'); ?></p>
+                <?php unset($_SESSION['success_message']); ?>
             <?php endif; ?>
             <?php if( !empty($error_message)): ?>
                 <ul class="error_message">
