@@ -43,16 +43,27 @@ try{
     //接続エラーのときエラー内容を取得する
     $error_message[] = $e->getMessage();
 }
-
-if( empty($_SESSION['admin_login']) ){
+// MEMO:下記修正箇所
+//if( empty($_SESSION['admin_login']) 
+if(!empty($_POST['btn_submit'])) {
 
     if(!empty($_POST['admin_password'])&& $_POST['admin_password'] === PASSWORD) {
         $_SESSION['admin_login'] = true;
     } else {
         $error_message[] = 'ログインに失敗しました。';
     }
-
 }
+
+// MEMO:Q&A回答のサンプルコード(ここの条件判定でも同じように動く)
+// if(empty($_SESSION['admin.php']) && !empty($_POST['admin_password'])) {
+//    if($_POST['admin_password'] === PASSWORD) {
+//       $_SESSION['admin_login'] = true;
+//     } else {
+//         unset($_SESSION['admin_login']);
+//         $error_message[] = 'ログインに失敗しました。';
+//     }
+// }
+
 
     if(!empty($pdo)) {
 
