@@ -73,6 +73,7 @@ if(!empty($_POST['btn_submit'])) {
     }
 
     //データベースの接続を閉じる
+    $stmt = null;
     $pdo = null;
 ?>
 <html lang="ja">
