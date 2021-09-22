@@ -1,5 +1,4 @@
 <?php
-ini_set('display_errors',true);
 
 //データベースの接続情報
 define('DB_HOST','localhost');
@@ -67,11 +66,11 @@ if(!empty($_GET['message_id'])&& empty($_POST['message_id'])) {
     }
 
     }elseif(!empty($_POST['message_id'])) {
-        
+
         //トランザクション開始
         $pdo->beginTransaction();
 
-        try{
+        try {
 
             //SQL作成
             $stmt = $pdo->prepare("DELETE FROM message WHERE id = :id");
@@ -80,18 +79,20 @@ if(!empty($_GET['message_id'])&& empty($_POST['message_id'])) {
             $stmt->bindValue(':id',$_POST['message_id'],PDO::PARAM_INT);
 
             //SQLクエリの実行
-            $stmt->ezecute();
+            $stmt->execute();
 
             //コミット
             $res = $pdo->commit();
 
-        }catch(Exception $e) {
+        } catch(Exception $e) {
             //エラーが発生した時はロールバック
-            $pdo->rooBack();
+            $pdo->rollBack();
         }
+
         //削除に成功したら一覧に戻る
         if($res) {
             header("Location:./admin.php");
+            exit;
         }
     }
 
@@ -371,7 +372,7 @@ if(!empty($_GET['message_id'])&& empty($_POST['message_id'])) {
             <form method="post">
                 <div>
                     <label for="view_name">表示名</label>
-                    <input id="view_name" type="text" name="view_name" value="<?php if(!empty($message_data['view_name'])) {echo $message_data['view_name'];} elseif(!empty($view_name)) { echo htmlspecialchars($view_name,ENT_QUOTES,'UTF-8');} ?>">
+                    <input id="view_name" type="text" name="view_name" value="<?php if(!empty($message_data['view_name'])) {echo $message_data['view_name'];} elseif(!empty($view_name)) { echo htmlspecialchars($view_name,ENT_QUOTES,'UTF-8');} ?>"disabled>
                 </div>
                 <div>
                     <label for="message">ひと言メッセージ</label>
